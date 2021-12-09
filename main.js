@@ -22,16 +22,15 @@ class Player {
   attack(n) {
     console.log(`fight ${this.name} Fight... ${n ?? ""}`);
   }
-  constructor({ name, img, hp = 100 }) {
+  constructor({ name, img = "", hp = 100 }) {
     this.name = name;
     this.img = img;
     this.#hp = hp;
   }
 }
 
-const createPlayer = (p, name, hp) => {
-  const url = URLS.sample();
-  const player = new Player({ name, img: url, hp });
+const createPlayer = (p, player) => {
+  console.log({ p, player });
   return `<div class="${p}">
     <div class="progressbar">
         <div class="life" style="width:${player.hp}%"></div>
@@ -44,8 +43,10 @@ const createPlayer = (p, name, hp) => {
   `;
 };
 
-const player1 = createPlayer("player1", "SCORPION", 76);
-const player2 = createPlayer("player2", "SUB-ZERO");
+const player1 = new Player({ name: "SCORPION", img: URLS.sample(), hp: 76 });
+const playerDiv1 = createPlayer("player1", player1);
+const player2 = new Player({ name: "SUB-ZERO", img: URLS.sample() });
+const playerDiv2 = createPlayer("player2", player2);
 
-const arenas = document.querySelector("div.arenas");
-arenas.innerHTML = player1 + player2;
+const $arenas = document.querySelector("div.arenas");
+$arenas.innerHTML = playerDiv1 + playerDiv2;
