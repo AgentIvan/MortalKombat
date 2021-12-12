@@ -1,17 +1,23 @@
 "use strict";
 
-const URLS = [
-  "http://reactmarathon-api.herokuapp.com/assets/scorpion.gif",
-  "http://reactmarathon-api.herokuapp.com/assets/kitana.gif",
-  "http://reactmarathon-api.herokuapp.com/assets/liukang.gif",
-  "http://reactmarathon-api.herokuapp.com/assets/sonya.gif",
-  "http://reactmarathon-api.herokuapp.com/assets/subzero.gif",
-];
+
+const rand = (max, min = 0) => Math.floor(Math.random() * (max - min)) + min;
+
+const URLS = {
+  "scorpion": "http://reactmarathon-api.herokuapp.com/assets/scorpion.gif",
+  "kitana": "http://reactmarathon-api.herokuapp.com/assets/kitana.gif",
+  "liukang": "http://reactmarathon-api.herokuapp.com/assets/liukang.gif",
+  "sonya": "http://reactmarathon-api.herokuapp.com/assets/sonya.gif",
+  "sub-zero": "http://reactmarathon-api.herokuapp.com/assets/subzero.gif",
+};
 URLS.sample = function () {
-  return this[Math.floor(Math.random() * this.length)];
+  const values = Object.values(this);
+  const casual = rand(values.length - 1);
+  return values[casual];
 }
 
 class Player {
+  player;
   name;
   #hp;
   img;
@@ -22,9 +28,10 @@ class Player {
   attack(n) {
     console.log(`fight ${this.name} Fight... ${n ?? ""}`);
   }
-  constructor({ name, img = "", hp = 100 }) {
+  constructor({ player = 1, name, img = URLS.sample(), hp = 100 }) {
     this.name = name;
-    this.img = img;
+    let nameKey = name.toLowerCase(); //.replace(/[^\w]/gi, '');
+    this.img = (nameKey in URLS) ? URLS[nameKey] : img;
     this.#hp = hp;
   }
 }
@@ -45,9 +52,9 @@ const createPlayer = (p, player) => {
 };
 
 const init = () => {
-  const player1 = new Player({ name: "SCORPION", img: URLS.sample(), hp: 76 });
+  const player1 = new Player({ player: 1, name: "SCORPION", img: URLS.sample(), hp: 76 });
   const playerDiv1 = createPlayer("player1", player1);
-  const player2 = new Player({ name: "SUB-ZERO", img: URLS.sample() });
+  const player2 = new Player({ player: 2, name: "SUB-ZERO", img: URLS.sample() });
   const playerDiv2 = createPlayer("player2", player2);
 
   const $arenas = document.querySelector("div.arenas");
