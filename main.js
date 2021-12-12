@@ -92,7 +92,7 @@ function changeHP(player) {
 function fightResult(player) {
   let $resultTitle = document.querySelector('div.loseTitle');
   if ($resultTitle) {
-    $resultTitle.innerText = '';
+    $resultTitle.innerText = 'Draw ...';
   } else {
     $resultTitle = createElement('div', 'loseTitle');
     $resultTitle.innerText = player.name + ' loose';
@@ -102,8 +102,8 @@ function fightResult(player) {
 }
 
 const init = () => {
-  const player1 = new Player({ player: 1, name: "SCORPION", img: URLS.sample(), hp: 76 });
-  const player2 = new Player({ player: 2, name: "SUB-ZERO", img: URLS.sample() });
+  const player1 = new Player({ player: 1, name: "SCORPION" });
+  const player2 = new Player({ player: 2, name: "SUB-ZERO" });
 
   $randomButton.addEventListener('click', () => {
     changeHP(player1);
