@@ -77,14 +77,37 @@ const createPlayer = (playerObj) => {
   return $player;
 };
 
+function changeHP(player) {
+  const $life = document.querySelector(`.player${player.player} .life`);
+  player.hp -= 20;
+  $life.style.width = player.hp + '%';
+  if (player.hp < 1) {
+    fightResult(player);
+    $randomButton.disabled = true;
+    $randomButton.removeEventListener('click');
+    console.log({ loose: player.name });
+  }
+};
+
+function fightResult(player) {
+  let $resultTitle = document.querySelector('div.loseTitle');
+  if ($resultTitle) {
+    $resultTitle.innerText = '';
+  } else {
+    $resultTitle = createElement('div', 'loseTitle');
+    $resultTitle.innerText = player.name + ' loose';
+    $arenas.appendChild($resultTitle);
+  }
+  return $resultTitle;
+}
+
 const init = () => {
   const player1 = new Player({ player: 1, name: "SCORPION", img: URLS.sample(), hp: 76 });
   const player2 = new Player({ player: 2, name: "SUB-ZERO", img: URLS.sample() });
 
   $randomButton.addEventListener('click', () => {
-    const $life2 = document.querySelector(`.player${2} .life`);
-    player2.hp -= 20;
-    $life2.style.width = player2.hp + '%';
+    changeHP(player1);
+    changeHP(player2);
   });
   $arenas.appendChild(createPlayer(player1));
   $arenas.appendChild(createPlayer(player2));
