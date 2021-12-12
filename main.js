@@ -1,5 +1,7 @@
 "use strict";
 
+const $arenas = document.querySelector("div.arenas");
+const $randomButton = document.querySelector("button.button");
 
 const rand = (max, min = 0) => Math.ceil(Math.random() * (max - min)) + min;
 
@@ -22,11 +24,18 @@ class Player {
   #hp;
   img;
   weapon = [];
+  lastDamage = 0;
   get hp() {
     return this.#hp;
   }
+  set hp(n) {
+    const damage = rand(this.#hp - n);
+    this.lastDamage = this.#hp > damage ? damage : this.#hp;
+    this.attack(damage);
+    this.#hp = this.#hp - this.lastDamage;
+  }
   attack(n) {
-    console.log(`fight ${this.name} Fight... ${n ?? ""}`);
+    console.log(`${this.name} Fighted... ${n ?? ""}`);
   }
   constructor({ player = 1, name, img = URLS.sample(), hp = 100 }) {
     this.player = player;
@@ -37,8 +46,6 @@ class Player {
   }
 }
 
-const $arenas = document.querySelector("div.arenas");
-
 function createElement(tag, className) {
   const $tag = document.createElement(tag);
   if (className) {
@@ -48,7 +55,7 @@ function createElement(tag, className) {
 }
 
 const createPlayer = (playerObj) => {
-  console.log({ player: playerObj });
+  // console.log({ player: playerObj });
   const $player = createElement('div', 'player' + playerObj.player);
   const $progressbar = createElement('div', 'progressbar');
   const $character = createElement('div', 'character');
@@ -74,6 +81,11 @@ const init = () => {
   const player1 = new Player({ player: 1, name: "SCORPION", img: URLS.sample(), hp: 76 });
   const player2 = new Player({ player: 2, name: "SUB-ZERO", img: URLS.sample() });
 
+  $randomButton.addEventListener('click', () => {
+    const $life2 = document.querySelector(`.player${2} .life`);
+    player2.hp -= 20;
+    $life2.style.width = player2.hp + '%';
+  });
   $arenas.appendChild(createPlayer(player1));
   $arenas.appendChild(createPlayer(player2));
 };
