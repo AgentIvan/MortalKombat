@@ -1,58 +1,116 @@
 "use strict";
 
-const URLS = [
-  "http://reactmarathon-api.herokuapp.com/assets/scorpion.gif",
-  "http://reactmarathon-api.herokuapp.com/assets/kitana.gif",
-  "http://reactmarathon-api.herokuapp.com/assets/liukang.gif",
-  "http://reactmarathon-api.herokuapp.com/assets/sonya.gif",
-  "http://reactmarathon-api.herokuapp.com/assets/subzero.gif",
-];
+const $arenas = document.querySelector("div.arenas");
+const $randomButton = document.querySelector("button.button");
+
+const rand = (max, min = 0) => Math.ceil(Math.random() * (max - min)) + min;
+
+const URLS = {
+  "scorpion": "http://reactmarathon-api.herokuapp.com/assets/scorpion.gif",
+  "kitana": "http://reactmarathon-api.herokuapp.com/assets/kitana.gif",
+  "liu kang": "http://reactmarathon-api.herokuapp.com/assets/liukang.gif",
+  "sonya": "http://reactmarathon-api.herokuapp.com/assets/sonya.gif",
+  "sub-zero": "http://reactmarathon-api.herokuapp.com/assets/subzero.gif",
+};
 URLS.sample = function () {
-  return this[Math.floor(Math.random() * this.length)];
+  const values = Object.values(this);
+  const casual = rand(values.length) - 1;
+  return values[casual];
 }
 
 class Player {
+  player;
   name;
   #hp;
   img;
   weapon = [];
+  lastDamage = 0;
   get hp() {
     return this.#hp;
   }
-  attack(n) {
-    console.log(`fight ${this.name} Fight... ${n ?? ""}`);
+  set hp(n) {
+    const damage = rand(this.#hp - n);
+    this.lastDamage = this.#hp > damage ? damage : this.#hp;
+    this.attack(damage);
+    this.#hp = this.#hp - this.lastDamage;
   }
-  constructor({ name, img = "", hp = 100 }) {
+  attack(n) {
+    console.log(`${this.name} Fighted... ${n ?? ""}`);
+  }
+  constructor({ player = 1, name, img = URLS.sample(), hp = 100 }) {
+    this.player = player;
     this.name = name;
-    this.img = img;
+    let nameKey = name.toLowerCase(); //.replace(/[^\w]/gi, '');
+    this.img = (nameKey in URLS) ? URLS[nameKey] : img;
     this.#hp = hp;
   }
 }
 
-const createPlayer = (p, player) => {
-  console.log({ p, player });
-  const pDiv = document.createElement('div');
-  pDiv.className = p;
-  pDiv.innerHTML = `
-    <div class="progressbar">
-      <div class="life" style="width:${player.hp}%"></div>
-      <div class="name">${player.name}</div>
-    </div>
-    <div class="character">
-      <img src="${player.img}" />
-    </div>`
-  return pDiv;
+function createElement(tag, className) {
+  const $tag = document.createElement(tag);
+  if (className) {
+    $tag.classList.add(className);
+  }
+  return $tag;
+}
+
+const createPlayer = (playerObj) => {
+  // console.log({ player: playerObj });
+  const $player = createElement('div', 'player' + playerObj.player);
+  const $progressbar = createElement('div', 'progressbar');
+  const $character = createElement('div', 'character');
+  const $life = createElement('div', 'life');
+  const $name = createElement('div', 'name');
+  const $img = createElement('img');
+
+  $life.style.width = playerObj.hp + '%';
+  $name.innerText = playerObj.name;
+  $img.src = playerObj.img;
+
+  $progressbar.appendChild($name);
+  $progressbar.appendChild($life);
+
+  $character.appendChild($img);
+  $player.appendChild($character);
+  $player.appendChild($progressbar);
+
+  return $player;
 };
 
-const init = () => {
-  const player1 = new Player({ name: "SCORPION", img: URLS.sample(), hp: 76 });
-  const playerDiv1 = createPlayer("player1", player1);
-  const player2 = new Player({ name: "SUB-ZERO", img: URLS.sample() });
-  const playerDiv2 = createPlayer("player2", player2);
+function changeHP(player) {
+  const $life = document.querySelector(`.player${player.player} .life`);
+  player.hp -= 20;
+  $life.style.width = player.hp + '%';
+  if (player.hp < 1) {
+    fightResult(player);
+    $randomButton.disabled = true;
+    $randomButton.removeEventListener('click');
+    console.log({ loose: player.name });
+  }
+};
 
-  const $arenas = document.querySelector("div.arenas");
-  $arenas.appendChild(playerDiv1);
-  $arenas.appendChild(playerDiv2);
+function fightResult(player) {
+  let $resultTitle = document.querySelector('div.loseTitle');
+  if ($resultTitle) {
+    $resultTitle.innerText = 'Draw ...';
+  } else {
+    $resultTitle = createElement('div', 'loseTitle');
+    $resultTitle.innerText = player.name + ' loose';
+    $arenas.appendChild($resultTitle);
+  }
+  return $resultTitle;
+}
+
+const init = () => {
+  const player1 = new Player({ player: 1, name: "SCORPION" });
+  const player2 = new Player({ player: 2, name: "SUB-ZERO" });
+
+  $randomButton.addEventListener('click', () => {
+    changeHP(player1);
+    changeHP(player2);
+  });
+  $arenas.appendChild(createPlayer(player1));
+  $arenas.appendChild(createPlayer(player2));
 };
 
 init();
